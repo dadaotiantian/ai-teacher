@@ -19,8 +19,8 @@ function send() {
   <section class="workspace">
     <aside>
       <div class="side-head">
-        <h1>智能体</h1>
-        <button title="新增" @click="store.view = 'create-agent'">+</button>
+        <h1>Agents</h1>
+        <button title="Create agent" @click="store.view = 'create-agent'">+</button>
       </div>
       <button
         v-for="agent in store.agents"
@@ -31,40 +31,49 @@ function send() {
       >
         {{ agent.agent_name }}
       </button>
-      <button class="secondary full" @click="store.view = 'players'">切换角色</button>
-      <button class="secondary" @click="store.settingsOpen = true">设置</button>
+      <button class="secondary full" @click="store.view = 'players'">Switch Character</button>
+      <button class="secondary" @click="store.settingsOpen = true">Settings</button>
     </aside>
+
     <section class="chat">
       <header class="chat-head">
         <div>
-          <h2>{{ store.agents.find((item) => item.agent_id === store.activeAgentId)?.agent_name || '智能体' }}</h2>
+          <h2>{{ store.agents.find((item) => item.agent_id === store.activeAgentId)?.agent_name || 'Agent' }}</h2>
           <p>UID {{ store.uid }}</p>
         </div>
         <div class="tabs">
-          <button :class="{ active: mode === 'pronunciation' }" @click="mode = 'pronunciation'">音标</button>
-          <button :class="{ active: mode === 'spelling' }" @click="mode = 'spelling'">拼写</button>
-          <button :class="{ active: mode === 'usage' }" @click="mode = 'usage'">使用</button>
-          <button @click="store.newWord(mode)">出题</button>
+          <button :class="{ active: mode === 'pronunciation' }" @click="mode = 'pronunciation'">Pronunciation</button>
+          <button :class="{ active: mode === 'spelling' }" @click="mode = 'spelling'">Spelling</button>
+          <button :class="{ active: mode === 'usage' }" @click="mode = 'usage'">Usage</button>
+          <button @click="store.newWord(mode)">New Word</button>
         </div>
       </header>
-      <WordTestCard v-if="store.currentWord" :word="store.currentWord" :mode="mode" @submit="(answer) => store.reviewWord(answer, mode)" />
+
+      <WordTestCard
+        v-if="store.currentWord"
+        :word="store.currentWord"
+        :mode="mode"
+        @submit="(answer) => store.reviewWord(answer, mode)"
+      />
+
       <div class="messages">
         <ChatBubble v-for="(message, index) in store.messages" :key="index" :message="message" />
       </div>
+
       <footer>
-        <input v-model="input" placeholder="输入消息" @keydown.enter="send" />
-        <button @click="send">发送</button>
+        <input v-model="input" placeholder="Type a message" @keydown.enter="send" />
+        <button @click="send">Send</button>
       </footer>
     </section>
 
     <div v-if="store.settingsOpen" class="modal-mask" @click.self="store.settingsOpen = false">
       <section class="modal">
         <header class="topbar">
-          <h2>设置</h2>
-          <button class="secondary" @click="store.settingsOpen = false">关闭</button>
+          <h2>Settings</h2>
+          <button class="secondary" @click="store.settingsOpen = false">Close</button>
         </header>
-        <p>当前账号：{{ store.username }}</p>
-        <button class="danger" @click="store.logoutAccount()">退出账号</button>
+        <p>Current account: {{ store.username }}</p>
+        <button class="danger" @click="store.logoutAccount()">Sign Out</button>
       </section>
     </div>
   </section>

@@ -17,7 +17,7 @@ export const useAppStore = defineStore('app', {
     accountId: Number(localStorage.getItem('account_id') || 0),
     token: localStorage.getItem('token') || '',
     uid: Number(localStorage.getItem(PLAYER_UID_KEY) || localStorage.getItem('uid') || 0),
-    username: '',
+    username: localStorage.getItem(USERNAME_KEY) || '',
     players: [] as Player[],
     agents: [] as Agent[],
     activeAgentId: 0,
@@ -32,9 +32,6 @@ export const useAppStore = defineStore('app', {
     async start() {
       wsService.connect()
       await this.autoLogin()
-    },
-    connect() {
-      wsService.connect()
     },
     async autoLogin() {
       const username = localStorage.getItem(USERNAME_KEY) || ''
@@ -60,11 +57,12 @@ export const useAppStore = defineStore('app', {
     },
     async auth(req: ClientFunctionDef, rsp: ServerFunctionDef, username: string, password: string, autoSelect: boolean) {
       const cleanUsername = username.trim()
+      const cleanPassword = password.trim()
       if (!cleanUsername || cleanUsername.length > MAX_NAME_LENGTH) {
         this.error = `账号名称不能为空，且不能超过 ${MAX_NAME_LENGTH} 个字符`
         return false
       }
-      if (!password.trim()) {
+      if (!cleanPassword) {
         this.error = '密码不能为空'
         return false
       }
@@ -91,7 +89,12 @@ export const useAppStore = defineStore('app', {
       return true
     },
     async loadPlayers() {
-      const body = await wsService.request(ClientFunctionDef.LIST_PLAYER_REQ, 0, { token: this.token }, ServerFunctionDef.LIST_PLAYER_RSP)
+      const body = await wsService.request(
+        ClientFunctionDef.LIST_PLAYER_REQ,
+        0,
+        { token: this.token },
+        ServerFunctionDef.LIST_PLAYER_RSP
+      )
       this.players = (body.players as Player[]) || []
     },
     async enterPlayerFlow(autoSelect: boolean) {
@@ -127,7 +130,7 @@ export const useAppStore = defineStore('app', {
         ServerFunctionDef.CREATE_PLAYER_RSP
       )
       if (body.result !== 0) {
-        this.error = String(body.message || '创建失败')
+        this.error = String(body.message || '创建角色失败')
         return
       }
 
@@ -140,11 +143,17 @@ export const useAppStore = defineStore('app', {
       }
     },
     async selectPlayer(uid: number) {
-      const body = await wsService.request(ClientFunctionDef.SELECT_PLAYER_REQ, uid, { token: this.token, uid }, ServerFunctionDef.SELECT_PLAYER_RSP)
+      const body = await wsService.request(
+        ClientFunctionDef.SELECT_PLAYER_REQ,
+        uid,
+        { token: this.token, uid },
+        ServerFunctionDef.SELECT_PLAYER_RSP
+      )
       if (body.result !== 0) {
-        this.error = String(body.message || '选角失败')
+        this.error = String(body.message || '选择角色失败')
         return
       }
+
       this.uid = Number(body.uid)
       localStorage.setItem(PLAYER_UID_KEY, String(this.uid))
       localStorage.setItem('uid', String(this.uid))
@@ -152,11 +161,17 @@ export const useAppStore = defineStore('app', {
       if (selectedPlayer) {
         localStorage.setItem(PLAYER_NAME_KEY, selectedPlayer.player_name)
       }
+
       await this.loadAgents()
       this.view = this.agents.length ? 'chat' : 'create-agent'
     },
     async deletePlayer(uid: number) {
-      await wsService.request(ClientFunctionDef.DELETE_PLAYER_REQ, uid, { token: this.token, uid }, ServerFunctionDef.DELETE_PLAYER_RSP)
+      await wsService.request(
+        ClientFunctionDef.DELETE_PLAYER_REQ,
+        uid,
+        { token: this.token, uid },
+        ServerFunctionDef.DELETE_PLAYER_RSP
+      )
       if (this.uid === uid) {
         this.uid = 0
         localStorage.removeItem(PLAYER_UID_KEY)
@@ -167,7 +182,12 @@ export const useAppStore = defineStore('app', {
       await this.enterPlayerFlow(false)
     },
     async loadAgents() {
-      const body = await wsService.request(ClientFunctionDef.LIST_AGENT_REQ, this.uid, { token: this.token }, ServerFunctionDef.LIST_AGENT_RSP)
+      const body = await wsService.request(
+        ClientFunctionDef.LIST_AGENT_REQ,
+        this.uid,
+        { token: this.token },
+        ServerFunctionDef.LIST_AGENT_RSP
+      )
       this.agents = (body.agents as Agent[]) || []
       this.activeAgentId = this.agents[0]?.agent_id || 0
     },
@@ -197,7 +217,12 @@ export const useAppStore = defineStore('app', {
       this.messages.push({ from: 'agent', text: String(body.reply || body.message || '') })
     },
     async newWord(type: string) {
-      const body = await wsService.request(ClientFunctionDef.WORD_TEST_REQ, this.uid, { token: this.token, type }, ServerFunctionDef.WORD_TEST_RSP)
+      const body = await wsService.request(
+        ClientFunctionDef.WORD_TEST_REQ,
+        this.uid,
+        { token: this.token, type },
+        ServerFunctionDef.WORD_TEST_RSP
+      )
       this.currentWord = body.word as WordInfo
     },
     async reviewWord(answer: string, type: string) {

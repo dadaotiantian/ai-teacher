@@ -8,15 +8,18 @@ import CreateAgentView from './views/CreateAgentView.vue'
 import ChatView from './views/ChatView.vue'
 
 const store = useAppStore()
-onMounted(() => store.start())
+
+onMounted(() => {
+  store.start()
+})
 </script>
 
 <template>
   <main>
     <section v-if="store.initializing" class="auth-shell">
       <div class="auth-panel">
-        <h1>正在登录</h1>
-        <p>正在连接服务器并恢复上次账号。</p>
+        <h1>Auto Login</h1>
+        <p>Connecting to the server and restoring your last account.</p>
       </div>
     </section>
     <LoginView v-else-if="store.view === 'login'" />
