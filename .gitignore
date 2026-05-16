@@ -1,0 +1,10 @@
+target/
+logs/
+client/node_modules/
+client/dist/
+graphify-out/
+sln/
+.claude/
+.vscode/
+data/working/
+*.log

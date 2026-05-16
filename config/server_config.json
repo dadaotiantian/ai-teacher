@@ -1,0 +1,25 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "websocket_path": "/ws",
+    "boss_threads": 1,
+    "worker_threads": 4,
+    "business_threads": 8
+  },
+  "database": {
+    "url": "jdbc:sqlite:data/working/ai_data_1.db",
+    "enable_wal": true,
+    "busy_timeout_ms": 5000
+  },
+  "heartbeat": {
+    "interval_seconds": 30,
+    "timeout_seconds": 90
+  },
+  "word": {
+    "config_database_url": "jdbc:sqlite:data/english_config.db",
+    "new_words_per_day": 20,
+    "review_words_per_day": 100,
+    "correct_threshold": 0.8
+  }
+}

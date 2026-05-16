@@ -1,0 +1,303 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: #1f2937;
+  background: #f6f7fb;
+  font-family: Inter, "Microsoft YaHei", Arial, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 14px;
+  color: #fff;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+button.secondary {
+  color: #1f2937;
+  background: #e5e7eb;
+}
+
+button.danger {
+  background: #dc2626;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #fff;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.auth-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 20px;
+}
+
+.auth-panel,
+.form-panel {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  background: #fff;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.actions,
+.row,
+.topbar,
+.side-head,
+footer,
+.chat-head,
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actions button,
+.row button {
+  flex: 1;
+}
+
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.page.narrow {
+  max-width: 520px;
+}
+
+.topbar {
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.card,
+.empty,
+.word-card {
+  display: grid;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fff;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  height: 100vh;
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid #e5e7eb;
+  padding: 18px;
+  background: #fff;
+}
+
+.side-head {
+  justify-content: space-between;
+}
+
+.agent-item {
+  width: 100%;
+  justify-content: flex-start;
+  color: #1f2937;
+  background: #f3f4f6;
+}
+
+.agent-item.active,
+.tabs button.active {
+  color: #fff;
+  background: #2563eb;
+}
+
+.full {
+  width: 100%;
+  margin-top: auto;
+}
+
+.chat {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  min-width: 0;
+}
+
+.chat-head {
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 20px;
+  background: #fff;
+}
+
+.chat-head p {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.tabs button {
+  color: #374151;
+  background: #e5e7eb;
+}
+
+.word-card {
+  margin: 14px 20px 0;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  padding: 20px;
+}
+
+.bubble {
+  max-width: min(680px, 90%);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  color: #fff;
+  background: #2563eb;
+}
+
+.bubble.system {
+  align-self: center;
+  color: #374151;
+  background: #e5e7eb;
+}
+
+footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 14px 20px;
+  background: #fff;
+}
+
+footer input {
+  flex: 1;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.check input {
+  width: auto;
+  min-height: auto;
+}
+
+.avatar {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #2563eb;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(17 24 39 / 45%);
+  z-index: 10;
+}
+
+.modal {
+  width: min(360px, 100%);
+  display: grid;
+  gap: 16px;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgb(17 24 39 / 20%);
+}
+
+.modal .topbar {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  aside {
+    border-right: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .chat-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
