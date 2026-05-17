@@ -19,7 +19,7 @@ EnglishWordMemorize - 智能背单词教学系统
 - 数据库：SQLite，运行数据文件为 `data/working/ai_data_1.db`，静态单词配置文件为 `data/english_config.db`
 - Java 版本：17 或 21
 - 后端端口：8080
-- 包结构：`com.dadaotiantian.memorize`
+- 包结构：`com.dadaotiantian.aiteacher`
 
 #### 前端技术栈
 
@@ -45,7 +45,7 @@ EnglishWordMemorize - 智能背单词教学系统
 ### 2.1 项目结构
 
 ```text
-src/main/java/com/dadaotiantian/memorize/
+server/src/main/java/com/dadaotiantian/aiteacher/
 ├── Launcher.java                         # 启动类
 ├── config/
 │   ├── ServerConfig.java                 # 加载 server_config.json
@@ -598,13 +598,13 @@ UI/UX 要求：
 
 ```bash
 mvn clean package
-java -jar target/ai-teacher-1.0.0.jar
+java -jar server/target/ai-teacher-1.0.0.jar
 ```
 
 或直接运行启动类：
 
 ```bash
-mvn exec:java -Dexec.mainClass="com.dadaotiantian.memorize.Launcher"
+mvn -pl server exec:java -Dexec.mainClass="com.dadaotiantian.aiteacher.Launcher"
 ```
 
 ### 6.2 前端启动
