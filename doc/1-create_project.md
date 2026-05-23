@@ -32,6 +32,7 @@ EnglishWordMemorize - 智能背单词教学系统
 ### 1.3 核心特性
 
 - 多账号登录系统
+- 客户端支持管理员模式、教师模式、学生模式，登录界面需要先选择模式，登录成功后进入对应模式页面
 - 每个账号最多创建 6 个角色
 - UID 表示角色 ID，不表示账号 ID，全局唯一
 - 智能体模块化管理
@@ -257,6 +258,35 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_t_u_player_account_name
 ON t_u_player(account_id, player_name);
 ```
 
+#### 用户模型配置表 `t_u_models`
+
+该表存放在运行数据库 `data/working/ai_data_1.db` 中。新项目默认没有该数据库文件，服务端启动时如果发现 `ai_data_1.db` 不存在，需要自动创建数据库文件，并初始化该表。该表用于记录用户配置的 API Key、模型名称和 API 地址。`owner_id` 表示该配置的所有者账号 ID，哪个 GM 创建的配置就记录哪个 GM 的账号 ID。
+
+```sql
+CREATE TABLE IF NOT EXISTS t_u_models (
+    id INTEGER PRIMARY KEY,
+    owner_id INTEGER NOT NULL,
+    account_id INTEGER NOT NULL,
+    model_name TEXT NOT NULL,
+    api_key TEXT NOT NULL,
+    api_url TEXT NOT NULL,
+    created_time INTEGER NOT NULL,
+    updated_time INTEGER,
+    status INTEGER DEFAULT 1,
+    FOREIGN KEY(owner_id) REFERENCES t_u_account(account_id),
+    FOREIGN KEY(account_id) REFERENCES t_u_account(account_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_t_u_models_owner_id
+ON t_u_models(owner_id);
+
+CREATE INDEX IF NOT EXISTS idx_t_u_models_account_id
+ON t_u_models(account_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_t_u_models_account_model
+ON t_u_models(account_id, model_name);
+```
+
 #### 单词表 `t_s_english_words`
 
 该表需要从现有文件 `sql/t_s_english_words.sql` 转换导入。原文件是 MySQL 导出，目标 SQLite 表结构如下：
@@ -450,6 +480,9 @@ client/
 │   │   └── ChatBubble.vue
 │   ├── views/
 │   │   ├── LoginView.vue
+│   │   ├── AdminModeView.vue
+│   │   ├── TeacherModeView.vue
+│   │   ├── StudentModeView.vue
 │   │   ├── SelectCharacterView.vue
 │   │   ├── CreateCharacterView.vue
 │   │   ├── CreateAgentView.vue
@@ -481,11 +514,40 @@ client/
 
 #### 登录页面 `LoginView.vue`
 
-1. 表单字段：用户名、密码。
-2. 使用 WebSocket 发送登录消息，不使用 HTTP。
-3. 登录成功后保存 `account_id` 和 `token` 到状态管理和 localStorage。
-4. 登录成功后跳转到选角页面。
-5. 登录失败显示错误信息。
+1. 登录前必须先选择模式：管理员模式、教师模式、学生模式。
+2. 表单字段：用户名、密码。
+3. 使用 WebSocket 发送登录消息，不使用 HTTP。
+4. 登录成功后保存 `account_id`、`token` 和所选模式到状态管理和 localStorage。
+5. 管理员模式登录成功后进入管理员页面。
+6. 教师模式登录成功后进入教师页面。
+7. 学生模式登录成功后进入学生页面，并可继续进入原有选角、智能体对话和单词学习流程。
+8. 登录失败显示错误信息。
+
+#### 管理员页面 `AdminModeView.vue`
+
+1. 作为管理员模式登录后的首页。
+2. 显示当前账号信息。
+3. 支持模型设置，页面提供“添加模型”按钮。
+4. 临时支持添加三种模型：DeepSeek、Kimi、百炼。
+5. 点击“添加模型”后弹出模型选择界面，可选择上述三种模型，并填写 API Key 和 API 地址。
+6. 如果所选模型已经配置过，需要提示“已配置”，不能重复添加。
+7. 模型配置需要记录所有者 ID，哪个 GM 创建的配置就记录哪个 GM 的账号 ID。
+8. 预留账号管理、服务运维入口。
+9. 支持退出登录。
+
+#### 教师页面 `TeacherModeView.vue`
+
+1. 作为教师模式登录后的首页。
+2. 显示当前账号信息。
+3. 预留班级管理、作业任务、学习报告入口。
+4. 支持退出登录。
+
+#### 学生页面 `StudentModeView.vue`
+
+1. 作为学生模式登录后的首页。
+2. 显示当前账号信息。
+3. 提供进入学习按钮，继续进入选角页面、创建角色页面或对话学习页面。
+4. 支持退出登录。
 
 #### 选角页面 `SelectCharacterView.vue`
 
@@ -586,9 +648,9 @@ UI/UX 要求：
 
 启动时执行：
 
-1. 确保 `data/working/ai_data_1.db` 和 `data/english_config.db` 所在目录存在。
+1. 确保 `data/working/ai_data_1.db` 和 `data/english_config.db` 所在目录存在；新项目如果没有 `data/working/ai_data_1.db`，服务端需要自动创建该 SQLite 数据库文件。
 2. 开启 SQLite WAL 模式。
-3. 自动检测业务表是否存在，不存在则创建。
+3. 自动检测业务表是否存在，不存在则创建，包括 `t_u_account`、`t_u_player`、`t_u_models`、`t_u_memory_word`。
 4. MySQL 导出文件中的 `DROP TABLE`、`CREATE TABLE`、`SET NAMES`、`ENGINE`、`COLLATE`、反引号等 MySQL 专有语法不能直接交给 SQLite 执行，需要转换或只解析 `INSERT INTO` 数据。
 5. 初始化 `MaxIdMgr` 中业务表的最大 ID。
 

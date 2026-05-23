@@ -3,17 +3,34 @@ import { ClientFunctionDef, ServerFunctionDef } from '../types/protocol'
 import { wsService } from '../services/wsService'
 import type { Agent, Player, WordInfo } from '../types/models'
 
-type ViewName = 'login' | 'players' | 'create-player' | 'create-agent' | 'chat'
+type ViewName =
+  | 'login'
+  | 'admin-home'
+  | 'teacher-home'
+  | 'student-home'
+  | 'players'
+  | 'create-player'
+  | 'create-agent'
+  | 'chat'
+type UserMode = 'admin' | 'teacher' | 'student'
 
 const USERNAME_KEY = 'last_username'
 const PASSWORD_KEY = 'last_password'
+const USER_MODE_KEY = 'last_user_mode'
 const PLAYER_UID_KEY = 'last_player_uid'
 const PLAYER_NAME_KEY = 'last_player_name'
 const MAX_NAME_LENGTH = 40
+const DEFAULT_USER_MODE: UserMode = 'student'
+
+function readStoredUserMode(): UserMode {
+  const storedMode = localStorage.getItem(USER_MODE_KEY)
+  return storedMode === 'admin' || storedMode === 'teacher' || storedMode === 'student' ? storedMode : DEFAULT_USER_MODE
+}
 
 export const useAppStore = defineStore('app', {
   state: () => ({
     view: 'login' as ViewName,
+    selectedMode: readStoredUserMode(),
     accountId: Number(localStorage.getItem('account_id') || 0),
     token: localStorage.getItem('token') || '',
     uid: Number(localStorage.getItem(PLAYER_UID_KEY) || localStorage.getItem('uid') || 0),
@@ -29,6 +46,10 @@ export const useAppStore = defineStore('app', {
     settingsOpen: false
   }),
   actions: {
+    selectMode(mode: UserMode) {
+      this.selectedMode = mode
+      localStorage.setItem(USER_MODE_KEY, mode)
+    },
     async start() {
       wsService.connect()
       await this.autoLogin()
@@ -50,7 +71,7 @@ export const useAppStore = defineStore('app', {
       }
     },
     async register(username: string, password: string) {
-      return this.auth(ClientFunctionDef.REGISTER_REQ, ServerFunctionDef.REGISTER_RSP, username, password, true)
+      return this.auth(ClientFunctionDef.REGISTER_REQ, ServerFunctionDef.REGISTER_RSP, username, password, false)
     },
     async login(username: string, password: string, autoSelect = false) {
       return this.auth(ClientFunctionDef.LOGIN_REQ, ServerFunctionDef.LOGIN_RSP, username, password, autoSelect)
@@ -83,10 +104,28 @@ export const useAppStore = defineStore('app', {
       localStorage.setItem('token', this.token)
       localStorage.setItem(USERNAME_KEY, cleanUsername)
       localStorage.setItem(PASSWORD_KEY, password)
+      localStorage.setItem(USER_MODE_KEY, this.selectedMode)
 
+      await this.enterModeHome(autoSelect)
+      return true
+    },
+    async enterModeHome(autoSelect = false) {
+      if (this.selectedMode === 'admin') {
+        this.view = 'admin-home'
+        return
+      }
+      if (this.selectedMode === 'teacher') {
+        this.view = 'teacher-home'
+        return
+      }
+      this.view = 'student-home'
+      if (autoSelect) {
+        await this.enterStudentLearning(true)
+      }
+    },
+    async enterStudentLearning(autoSelect = false) {
       await this.loadPlayers()
       await this.enterPlayerFlow(autoSelect)
-      return true
     },
     async loadPlayers() {
       const body = await wsService.request(

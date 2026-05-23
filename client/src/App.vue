@@ -2,6 +2,9 @@
 import { onMounted } from 'vue'
 import { useAppStore } from './stores/app'
 import LoginView from './views/LoginView.vue'
+import AdminModeView from './views/AdminModeView.vue'
+import TeacherModeView from './views/TeacherModeView.vue'
+import StudentModeView from './views/StudentModeView.vue'
 import SelectCharacterView from './views/SelectCharacterView.vue'
 import CreateCharacterView from './views/CreateCharacterView.vue'
 import CreateAgentView from './views/CreateAgentView.vue'
@@ -23,6 +26,9 @@ onMounted(() => {
       </div>
     </section>
     <LoginView v-else-if="store.view === 'login'" />
+    <AdminModeView v-else-if="store.view === 'admin-home'" />
+    <TeacherModeView v-else-if="store.view === 'teacher-home'" />
+    <StudentModeView v-else-if="store.view === 'student-home'" />
     <SelectCharacterView v-else-if="store.view === 'players'" />
     <CreateCharacterView v-else-if="store.view === 'create-player'" />
     <CreateAgentView v-else-if="store.view === 'create-agent'" />
